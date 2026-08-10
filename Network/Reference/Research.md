@@ -116,7 +116,7 @@ An API is allow other application to access its data or service. It is set rules
 
 --- 
 
-![alt text](image.png)
+![alt text](../image/image.png)
 ---
 #### API Example:
 ---
