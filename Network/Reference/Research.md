@@ -160,3 +160,99 @@ Your unique API authentication key, allowing the server to authorize the request
 
 ## Parameters (from=San+Jose,Ca&to=Monterey,Ca): 
 The input values for the route calculation, specifying the starting location (San Jose, CA) and destination (Monterey, CA).
+
+# 10. Automation Script Network 
+---
+### How they work:
+Define the Source of Truth:
+
+Instead of checking a spreadsheet, the engineer maintains network state data (IP addresses, VLAN IDs, hostnames) in a database tool like NetBox or Git repositories.
+
+Write Templates and Automation Code:
+
+Ansible: The engineer writes a YAML file called a playbook defining the desired outcome (e.g., "Ensure VLAN 20 exists on all switches").
+
+Python: For custom logic or data processing, the engineer writes scripts using specialized network libraries:
+
+Netmiko or Paramiko to open SSH connections to hardware.
+
+Jinja2 to generate device configuration files from templates.
+
+TextFSM or  Genie to translate unstructured raw CLI outputs into structured JSON.
+
+Test in a Staging Lab:
+
+Before pushing changes to production, the engineer executes the script against simulated environments (e.g., GNS3, Containerlab, or Cisco Modeling Labs).
+
+Execute via API or Automation Pipeline:
+
+The engineer runs the playbook or pushes the code to a CI/CD pipeline (like GitHub Actions or GitLab CI). The system logs into hundreds of devices simultaneously via APIs (RESTCONF/NETCONF) or SSH to make the updates.
+
+Verify and Audit State:
+
+The code checks device responses to confirm the network state matches expectations, automatically logging changes into ticket systems like Jira or ServiceNow.
+
+---
+```Text:
+Example of how it work:
+What if we want to Push new Vlan to All switch in the Network that have the same user name and password.
+```
+## Script Code Example:
+Before we config this scrip we must to config IP, Username, Password, SSH by Console first.
+### Code example of every switch:
+```Python
+from netmiko import ConnectHandler
+
+# 1. Define a list of all your switch IP addresses
+switch_ips = [
+    '192.168.1.50',
+    '192.168.1.51',
+    '192.168.1.52',
+    '192.168.1.53'
+]
+
+# 2. Commands to push to every switch
+vlan_commands = [
+    'vlan 20',
+    'name GUEST_WIFI',
+    'state active'
+]
+
+# 3. Loop through each switch automatically
+for ip in switch_ips:
+    print(f"\n--- Connecting to Switch at {ip} ---")
+    
+    device = {
+        'device_type': 'cisco_ios',
+        'host': ip,
+        'username': 'admin',
+        'password': 'Cisco123',
+    }
+    
+    try:
+        net_connect = ConnectHandler(**device)
+        output = net_connect.send_config_set(vlan_commands)
+        net_connect.save_config()
+        print(f"Successfully configured VLAN 20 on {ip}")
+        net_connect.disconnect()
+        
+    except Exception as e:
+        print(f"Failed to configure {ip}: {e}")
+```
+---
+## Out-Put of this Script
+```
+--- Connecting to Switch at 192.168.1.50 ---
+Successfully configured VLAN 20 on 192.168.1.50
+
+--- Connecting to Switch at 192.168.1.51 ---
+Successfully configured VLAN 20 on 192.168.1.51
+
+--- Connecting to Switch at 192.168.1.52 ---
+Failed to configure 192.168.1.52: Authentication to device failed.
+
+--- Connecting to Switch at 192.168.1.53 ---
+Successfully configured VLAN 20 on 192.168.1.53
+```
+---
+ 
