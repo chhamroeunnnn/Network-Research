@@ -1,6 +1,6 @@
 # Example Script
 
-## Security & Access Control (Port Security & ACLs)
+## 1. Security & Access Control (Port Security & ACLs)
 
 ### Access Control Lists (ACLs):
  Push firewall or traffic-filtering rules across switches (e.g., blocking a compromised IP address network-wide in seconds).
@@ -162,3 +162,50 @@ security_commands = [
 ]
 ```
 ---
+# 2. DHCP Configuartion Script
+
+network switches/routers, you use Python to push the DHCP Pool configuration. This tells the switch which range of IP addresses to hand out to end devices automatically when they plug in:
+
+```Python
+from netmiko import ConnectHandler
+
+switch_device = {
+    'device_type': 'cisco_ios',
+    'host': '192.168.1.50',
+    'username': 'admin',
+    'password': 'Cisco123',
+}
+
+# Configuration commands to set up a DHCP server on the switch
+dhcp_commands = [
+    # Exclude management/gateway IPs from being handed out
+    'ip dhcp excluded-address 10.0.0.1 10.0.0.10',
+    
+    # Create the DHCP Pool for Guest devices
+    'ip dhcp pool GUEST_POOL',
+    'network 10.0.0.0 255.255.255.0',       # Subnet range (10.0.0.1 to 10.0.0.254)
+    'default-router 10.0.0.1',               # Default Gateway
+    'dns-server 8.8.8.8 8.8.4.4',            # DNS Servers
+    'lease 1 0 0',                           # Lease duration: 1 day
+    'exit'
+]
+
+net_connect = ConnectHandler(**switch_device)
+net_connect.send_config_set(dhcp_commands)
+net_connect.save_config()
+net_connect.disconnect()
+```
+## Note For Black by DHCP IP With ACL
+We can black end device by MAC Address.
+### Example:
+```Py
+# Block a specific rogue MAC address on a port
+mac_block_commands = [
+    'mac access-list extended BLOCK_ROGUE_DEVICE',
+    'deny host a4b1.c102.f310 any',   # Drops traffic from this specific hardware MAC
+    'permit any any',
+    'exit',
+    'interface GigabitEthernet0/1',
+    'mac access-group BLOCK_ROGUE_DEVICE in'
+]
+```
