@@ -137,3 +137,26 @@ REST (Representational State Transfer) is an architectural style designed for ne
 ![alt text](<../image/image copy 5.png>)
 
 ---
+### URI Identify
+![alt text](<../image/image copy 6.png>)
+
+# Main Components
+
+API Server ([http://www.mapquestapi.com/](http://www.mapquestapi.com/)): The domain and protocol pointing to the server hosting the web service.
+
+## Resources (directions/v2/route): 
+The specific path on the server that defines what action to perform—in this case, calculating a driving route using version 2 of MapQuest's directions service.
+
+## Query(outFormat=json&key=KEY&from=San+Jose,Ca&to=Monterey,Ca): 
+The section following the ? character that passes extra key-value parameters to refine the request.
+
+# Query Parameters
+
+## Format (outFormat=json): 
+Tells the API to return the response formatted as a JSON object.
+
+## Key (key=KEY): 
+Your unique API authentication key, allowing the server to authorize the request.
+
+## Parameters (from=San+Jose,Ca&to=Monterey,Ca): 
+The input values for the route calculation, specifying the starting location (San Jose, CA) and destination (Monterey, CA).
