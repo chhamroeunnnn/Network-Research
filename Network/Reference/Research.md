@@ -255,4 +255,11 @@ Failed to configure 192.168.1.52: Authentication to device failed.
 Successfully configured VLAN 20 on 192.168.1.53
 ```
 ---
- 
+# 11. Feature Availability by Device Type
+
+| Security Feature | Switches | Routers | Firewalls |
+| :--- | :---: | :---: | :---: |
+| **ACLs (IP/Subnet Blocking)** | ✅ Supported | ✅ Supported | ✅ Supported (via Policies) |
+| **Interface Descriptions / IP Assignment** | ✅ Supported | ✅ Supported | ✅ Supported |
+| **VLAN Creation** | ✅ Supported | ❌ Limited (Uses Sub-interfaces) | ❌ Limited (Uses Sub-interfaces) |
+| **Port Security (MAC address locks)** | ✅ Supported | ❌ Not Supported | ❌ Not Supported |
