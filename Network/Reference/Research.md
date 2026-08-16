@@ -263,3 +263,60 @@ Successfully configured VLAN 20 on 192.168.1.53
 | **Interface Descriptions / IP Assignment** | ✅ Supported | ✅ Supported | ✅ Supported |
 | **VLAN Creation** | ✅ Supported | ❌ Limited (Uses Sub-interfaces) | ❌ Limited (Uses Sub-interfaces) |
 | **Port Security (MAC address locks)** | ✅ Supported | ❌ Not Supported | ❌ Not Supported |
+
+# 11. ACL rule
+### What is ACL and how it work ?
+ACL is the short name of Access control list and ACL is work as one of the security that provice network eng to config of kind: 
+block port , act like firewall but can not block website.
+```Bash 
+Create an extended ACL named BLOCK_WEB
+ip access-list extended BLOCK_WEB
+deny tcp any host 10.0.0.50 eq 80
+permit ip any any
+
+Apply the ACL to the incoming interface
+interface GigabitEthernet0/0
+ip access-group BLOCK_WEB in
+```
+# 12. NAT (Network Address translation)
+NAT (Network Address Translation) is a networking method that remaps IP address spaces by modifying network address information in the IP header of packets while they are in transit across a routing device.
+
+Think of NAT like a mailroom in an apartment building: all residents (devices on your local network) have their own apartment numbers (private IP addresses), but external mail sent to the outside world leaves with the building's single street address (public IP address). When responses return to the building, the mailroom routes them back to the correct apartment based on tracked request numbers.
+
+---
+
+| Type | Description | Primary Use Case |
+| :--- | :--- | :--- |
+| **Static NAT** | Maps a single private IP address to a single public IP address permanently on a 1:1 basis. | Hosting web or email servers on internal networks that need consistent public exposure. |
+| **Dynamic NAT** | Maps an unallocated private IP address to a public IP address selected from a pool of public IPs. | Networks with multiple public IP allocations where devices connect periodically. |
+| **PAT (Port Address Translation)** | *Also known as NAT Overload.* Maps multiple private IP addresses to a single public IP by appending unique source port numbers to track connections. | Standard home networks, small offices, and consumer Wi-Fi routers. |
+
+---
+### Example
+Network Topology Assumptions
+Inside Interface (LAN): GigabitEthernet0/0 (Network: 192.168.1.0/24)
+
+Outside Interface (WAN): GigabitEthernet0/1 (Public IP: 203.0.113.1/30)
+
+```bash
+! Step 1: Define Inside and Outside interfaces
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
+ exit
+
+interface GigabitEthernet0/1
+ ip address 203.0.113.1 255.255.255.252
+ ip nat outside
+ exit
+
+! Step 2: Define an Access List (ACL) matching internal traffic
+ip access-list standard LAN_SUBNET
+ permit 192.168.1.0 0.0.0.255
+ exit
+
+! Step 3: Enable NAT Overload (PAT) on the outside interface
+ip nat inside source list LAN_SUBNET interface GigabitEthernet0/1 overload
+```
+---
+
